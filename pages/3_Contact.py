@@ -2,7 +2,17 @@ import streamlit as st
 import qrcode
 from io import BytesIO
 import streamlit.components.v1 as components
+import pyperclip
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
+from dotenv import load_dotenv
+from streamlit_extras.let_it_rain import rain
 
+
+# Load environment variables
+load_dotenv()
 
 st.set_page_config(
     
@@ -11,6 +21,57 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 # Using default Streamlit colors for better dark mode compatibility
+
+# Email sending function
+def send_email(sender_name, sender_email, sender_phone, contacting_as, subject_text, message_text):
+    """Send email notification via SMTP"""
+    try:
+        # Get SMTP credentials from environment variables
+        smtp_email = os.getenv("SMTP_EMAIL")
+        smtp_password = os.getenv("SMTP_APP_PASSWORD")
+        
+        if not smtp_email or not smtp_password:
+            return False, "SMTP credentials not configured"
+        
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = smtp_email
+        msg['To'] = "sushantnagi667@gmail.com, edu@sushant.cc"
+        msg['Reply-To'] = sender_email  # Set reply-to as sender's email
+        msg['Subject'] = f"Tutoring Inquiry from {sender_name}" + (f" - {subject_text}" if subject_text else "")
+        
+        # Email body
+        body = f"""
+New tutoring inquiry received:
+
+Name: {sender_name}
+Email: {sender_email}
+Phone: {sender_phone if sender_phone else 'Not provided'}
+Contacting as: {contacting_as}
+Subject: {subject_text if subject_text else 'N/A'}
+
+Message:
+{message_text}
+
+---
+Sent via Tutor Portfolio Contact Form
+"""
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # Connect to Gmail SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(smtp_email, smtp_password)
+        
+        # Send email to both recipients
+        server.send_message(msg)
+        server.quit()
+        
+        return True, "Email sent successfully!"
+        
+    except Exception as e:
+        return False, f"Error sending email: {str(e)}"
 
 # Page 3: Contact
 
@@ -28,24 +89,14 @@ with col1:
     with st.form("contact_form"):
         name = st.text_input("Full Name *", placeholder="Enter your full name")
         email = st.text_input("Email Address *", placeholder="your.email@example.com")
-        phone = st.text_input("Phone Number", placeholder="+1 (123) 456-7890")
+        phone = st.text_input("Phone Number (with country code) *", placeholder="+1 (123) 456-7890")
         
-        grade_level = st.selectbox(
-            "Grade Level / Academic Level *",
-            ["", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12", "College Freshman", "College Sophomore", "Other"]
+        contacting_as = st.selectbox(
+            "Contacting as *",
+            ["", "Student", "Parent", "Institute/Agency", "Other"]
         )
         
-        subjects = st.multiselect(
-            "Subjects of Interest *",
-            ["Mathematics", "Physics", "Chemistry", "SAT Math", "SAT Physics", "SAT Chemistry", "Olympiad Preparation", "Other"]
-        )
-        
-        tutoring_type = st.radio(
-            "Preferred Tutoring Type *",
-            ["One-on-One Online", "Group Sessions", "Intensive Crash Course", "Exam Preparation"]
-        )
-        
-        availability = st.text_area("Preferred Schedule / Availability", placeholder="e.g., Weekends, After 6 PM EST, etc.")
+        subject = st.text_input("Subject", placeholder="Brief subject of your inquiry")
         
         message = st.text_area(
             "Message *", 
@@ -56,43 +107,62 @@ with col1:
         
         if submitted:
             # Validation
-            if not name or not email or not grade_level or not subjects or not message:
+            if not name or not email or not contacting_as or not message:
                 st.error("Please fill in all required fields marked with *")
             else:
-                # Create email content
-                email_subject = f"Tutoring Inquiry from {name}"
-                email_body = f"""
+                # Send email via SMTP
+                with st.spinner("Sending your message..."):
+                    success, response_message = send_email(
+                        sender_name=name,
+                        sender_email=email,
+                        sender_phone=phone,
+                        contacting_as=contacting_as,
+                        subject_text=subject,
+                        message_text=message
+                    )
+                
+                if success:
+                    st.success("✅ Message sent successfully! I'll get back to you within 48 hours." \
+                    " Contact via WhatsApp if urgent.")
+                    rain(
+                        emoji="📮",
+                        font_size=54,
+                        falling_speed=5,
+                        animation_length="1",
+                        )
+                else:
+                    st.error(f"❌ Failed to send message: {response_message}")
+                    st.warning("Please try contacting via email or WhatsApp directly.")
+                    
+                    # Fallback: Create mailto link
+                    email_subject = f"Tutoring Inquiry from {name}" + (f" - {subject}" if subject else "")
+                    email_body = f"""
 New tutoring inquiry received:
 
 Name: {name}
 Email: {email}
 Phone: {phone}
-Grade Level: {grade_level}
-Subjects: {', '.join(subjects)}
-Tutoring Type: {tutoring_type}
-Availability: {availability}
+Contacting as: {contacting_as}
+Subject: {subject if subject else 'N/A'}
 
 Message:
 {message}
 
 ---
 Sent via Tutor Portfolio Contact Form
-                """
-                
-                # Create mailto link
-                mailto_link = f"mailto:sushantnagi667@gmail.com?subject={email_subject}&body={email_body}"
-                
-                st.success("✅ Form submitted successfully!")
-                st.markdown(f"""
-                **Next Steps:**
-                1. [Click here to open your email client]({mailto_link}) 
-                2. Or copy the message below and send manually
-                3. I'll respond within 24 hours!
-                """)
-                
-                # Display formatted message for manual copying
-                with st.expander("📋 Copy Message for Manual Send"):
-                    st.code(f"To: sushantnagi667@gmail.com\nSubject: {email_subject}\n\n{email_body}", language="text")
+                    """
+                    
+                    mailto_link = f"mailto:sushantnagi667@gmail.com?subject={email_subject}&body={email_body}"
+                    
+                    st.markdown(f"""
+                    **Alternative Options:**
+                    1. [Click here to open your email client]({mailto_link}) 
+                    2. Or contact via WhatsApp below
+                    """)
+                    
+                    # Display formatted message for manual copying
+                    with st.expander("📋 Copy Message for Manual Send"):
+                        st.code(f"To: sushantnagi667@gmail.com\nSubject: {email_subject}\n\n{email_body}", language="text")
 
 with col2:
     st.markdown("### 📧 Contact Details")
@@ -105,15 +175,13 @@ with col2:
     with col_email:
         st.code(email_address)
     with col_copy:
-        email_to_copy = email_address
-    
-        if st.button("📋", help="Copy email"):
-            components.html(f"""
-                <script>
-                    navigator.clipboard.writeText("{email_to_copy}");
-                </script>
-                """, height=0)
-            st.toast("✅ Email copied to clipboard!")
+        if st.button("📋", help="Copy email", key="copy_email_btn"):
+            try:
+                pyperclip.copy(email_address)
+                st.toast("✅ Email copied to clipboard!")
+            except:
+                # Fallback: show the email for manual copy
+                st.toast("⚠️ Please copy manually: " + email_address)
        
             
     
@@ -163,14 +231,14 @@ with col2:
     st.info("""
     📞 **Contact Information**
     
-    **Email:** sushantnagi667@gmail.com  
+    **Email:** edu@sushant.cc  
     **WhatsApp:** +91 95994 68699  
     """)
 
 st.markdown("---")
 
 # FAQ Section
-st.markdown("## ❓ Frequently Asked Questions")
+st.markdown("## ❓ Frequently Asked Question(s)")
 
 with st.expander("💰 What are your tutoring rates?"):
     st.write("""
@@ -183,44 +251,26 @@ with st.expander("💰 What are your tutoring rates?"):
     Contact me for a personalized quote. First session is always free!
     """)
 
-with st.expander("⏰ What are your available hours?"):
-    st.write("""
-    I offer flexible scheduling to accommodate students from different time zones:
-    - Weekdays: 4 PM - 10 PM EST
-    - Weekends: 9 AM - 8 PM EST
-    - Special arrangements for different time zones
-    """)
+# with st.expander("⏰ What are your available hours?"):
+#     st.write("""
+#     I offer flexible scheduling to accommodate students from different time zones:
+#     - Available: 6:30 PM EST to 12:30 PM EST (next day)
+#     - Covering most time zones globally
+#     - Special arrangements can be made upon request
+#     """)
 
-with st.expander("🔧 What platform do you use for online tutoring?"):
-    st.write("""
-    I primarily use:
-    - Zoom for video sessions
-    - Interactive whiteboard tools
-    - Screen sharing for problem solving
-    - Google Drive for resource sharing
-    """)
+# # Implementation notes
+# st.markdown("---")
+# st.markdown("### 🛠️ Setup Instructions:")
+# st.info("""
+# **To complete the WhatsApp integration:**
 
-with st.expander("📚 Do you provide study materials?"):
-    st.write("""
-    Yes! I provide:
-    - Custom practice problems
-    - Study guides and notes
-    - Past exam papers and solutions
-    - Recommended textbooks and resources
-    """)
+# 1. Replace `+1234567890` with your actual WhatsApp number
+# 2. Update the pre-filled message if needed
+# 3. The QR code will automatically update with your number
 
-# Implementation notes
-st.markdown("---")
-st.markdown("### 🛠️ Setup Instructions:")
-st.info("""
-**To complete the WhatsApp integration:**
-
-1. Replace `+1234567890` with your actual WhatsApp number
-2. Update the pre-filled message if needed
-3. The QR code will automatically update with your number
-
-**For email functionality:**
-- The form creates a mailto link automatically
-- Consider integrating with email services like EmailJS for better functionality
-- Copy button functionality can be enhanced with JavaScript
-""")
+# **For email functionality:**
+# - The form creates a mailto link automatically
+# - Consider integrating with email services like EmailJS for better functionality
+# - Copy button functionality can be enhanced with JavaScript
+# """)

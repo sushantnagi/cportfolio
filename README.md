@@ -34,9 +34,7 @@ A comprehensive Streamlit-based portfolio website for showcasing tutoring qualif
 1. Clone or download this repository
 2. Navigate to the project directory
 3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+   ```bash   ```
 
 ### Running the Application
 
