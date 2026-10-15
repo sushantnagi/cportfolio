@@ -95,18 +95,23 @@ with col3:
 
     **Subjects and exams taught:**
 
-    - **Mathematics competitions:** AMC 8 and AMC 10
-    - **AP Calculus:** AB and BC
+    - **Competitive:** AMC 8 and AMC 10
+    - **SAT/PSAT**
+    - **AP Calculus:** AB/BC
     - **AP Chemistry**
-    - **IGCSE:** Additional Mathematics
+    - **IGCSE:** Mathematics, Additional Mathematics (Add Maths)
     - **School Mathematics:** Geometry, Algebra I, Algebra II, and Precalculus
     
-    Taught several students for SAT/Olympiads (Grade 8-12) from:
+    Taught several students in Grades 8–12 from:
+
     - 🇺🇸 USA
     - 🇬🇧 UK  
     - 🇦🇺 Australia
     - 🌍 Middle East
     - 🇪🇺 Europe
+    - 🇸🇬 Singapore
+
+    …and more.
     """)
 
 st.markdown("---")
@@ -125,7 +130,7 @@ st.markdown("""
 ### Why Choose Me as Your Tutor?
 
 ✅ **Proven Track Record**: Multiple olympiad medals and high academic achievements  
-✅ **International Experience**: Taught students from USA, UK, Australia, Middle East, and Europe  
+✅ **International Experience**: Taught students from the USA, UK, Australia, Middle East, Europe, Singapore, and more  
 ✅ **Subject Expertise**: Mathematics, Physics, Chemistry, and SAT preparation  
 ✅ **Personalized Approach**: Tailored learning plans for each student  
 ✅ **Free Trial Session**: 50-minute trial to assess your needs  
