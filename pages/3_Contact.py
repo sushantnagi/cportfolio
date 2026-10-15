@@ -2,7 +2,6 @@ import streamlit as st
 import qrcode
 from io import BytesIO
 import streamlit.components.v1 as components
-import pyperclip
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -16,7 +15,7 @@ load_dotenv()
 
 st.set_page_config(
     
-    # page_icon="🎓",
+    page_title="Sushant Nagi - Tutor Portfolio",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -79,64 +78,128 @@ st.markdown("""
 Ready to start your learning journey? Get in touch to book your free trial session or ask any questions about tutoring services.
 """)
 
-# Create two columns for contact form and contact info
-col1, col2 = st.columns([2, 1])
+# WhatsApp Section
+st.markdown("### 💬 WhatsApp")
 
-with col1:
-    st.markdown("## 📝 Contact Form")
+whatsapp_number = "919599468699"  # Placeholder - you'll replace this
+whatsapp_message = "Hi, I would like to book a free trial session."
+whatsapp_url = f"https://wa.me/{whatsapp_number}?text={whatsapp_message}"
+
+# WhatsApp contact button
+st.markdown(f"""
+<a href="{whatsapp_url}" target="_blank" style="text-decoration: none;">
+    <div style="
+        background-color: #25D366; 
+        color: white; 
+        padding: 10px 20px; 
+        border-radius: 10px; 
+        text-align: center; 
+        margin: 10px 0;
+        display: block;
+    ">
+        💬 Contact on WhatsApp
+    </div>
+</a>
+""", unsafe_allow_html=True)
+
+# Generate QR Code for WhatsApp
+st.markdown("**WhatsApp QR Code:**")
+
+# Create QR code
+qr = qrcode.QRCode(version=1, box_size=10, border=5)
+qr.add_data(whatsapp_url)
+qr.make(fit=True)
+
+# Create QR code image
+qr_img = qr.make_image(fill_color="black", back_color="white")
+
+# Convert to bytes for Streamlit
+buffer = BytesIO()
+qr_img.save(buffer, "PNG")
+buffer.seek(0)
+
+st.image(buffer, width=200, caption="Scan to chat on WhatsApp")
+
+
+# Email contact and QR code
+st.markdown("### 📧 Email")
+email_address = "edu@sushant.cc"
+st.code(email_address, language="text")
+
+st.markdown("**Email QR Code:**")
+email_qr = qrcode.QRCode(version=1, box_size=10, border=5)
+email_qr.add_data(f"mailto:{email_address}")
+email_qr.make(fit=True)
+email_qr_img = email_qr.make_image(fill_color="black", back_color="white")
+email_buffer = BytesIO()
+email_qr_img.save(email_buffer, "PNG")
+email_buffer.seek(0)
+st.image(email_buffer, width=200, caption="Scan to send an email")
+
+# Contact info box
+st.info("""
+📞 **Contact Information**
+
+**Email:** edu@sushant.cc  
+**WhatsApp:** +91 95994 68699  
+""")
+
+st.markdown("---")
+
+st.markdown("## 📝 Contact Form")
+
+# Contact form
+with st.form("contact_form"):
+    name = st.text_input("Full Name *", placeholder="Enter your full name")
+    email = st.text_input("Email Address *", placeholder="your.email@example.com")
+    phone = st.text_input("Phone Number (with country code) *", placeholder="+1 (123) 456-7890")
     
-    # Contact form
-    with st.form("contact_form"):
-        name = st.text_input("Full Name *", placeholder="Enter your full name")
-        email = st.text_input("Email Address *", placeholder="your.email@example.com")
-        phone = st.text_input("Phone Number (with country code) *", placeholder="+1 (123) 456-7890")
-        
-        contacting_as = st.selectbox(
-            "Contacting as *",
-            ["", "Student", "Parent", "Institute/Agency", "Other"]
-        )
-        
-        subject = st.text_input("Subject", placeholder="Brief subject of your inquiry")
-        
-        message = st.text_area(
-            "Message *", 
-            placeholder="Tell me about your learning goals, current challenges, or any specific topics you'd like to focus on..."
-        )
-        
-        submitted = st.form_submit_button("Send Message 📧", use_container_width=True)
-        
-        if submitted:
-            # Validation
-            if not name or not email or not contacting_as or not message:
-                st.error("Please fill in all required fields marked with *")
-            else:
-                # Send email via SMTP
-                with st.spinner("Sending your message..."):
-                    success, response_message = send_email(
-                        sender_name=name,
-                        sender_email=email,
-                        sender_phone=phone,
-                        contacting_as=contacting_as,
-                        subject_text=subject,
-                        message_text=message
+    contacting_as = st.selectbox(
+        "Contacting as *",
+        ["", "Student", "Parent", "Institute/Agency", "Other"]
+    )
+    
+    subject = st.text_input("Subject", placeholder="Brief subject of your inquiry")
+    
+    message = st.text_area(
+        "Message *", 
+        placeholder="Tell me about your learning goals, current challenges, or any specific topics you'd like to focus on..."
+    )
+    
+    submitted = st.form_submit_button("Send Message 📧", use_container_width=True)
+    
+    if submitted:
+        # Validation
+        if not name or not email or not contacting_as or not message:
+            st.error("Please fill in all required fields marked with *")
+        else:
+            # Send email via SMTP
+            with st.spinner("Sending your message..."):
+                success, response_message = send_email(
+                    sender_name=name,
+                    sender_email=email,
+                    sender_phone=phone,
+                    contacting_as=contacting_as,
+                    subject_text=subject,
+                    message_text=message
+                )
+            
+            if success:
+                st.success("✅ Message sent successfully! I'll get back to you within 48 hours." \
+                " Contact via WhatsApp if urgent.")
+                rain(
+                    emoji="📮",
+                    font_size=54,
+                    falling_speed=5,
+                    animation_length="1",
                     )
+            else:
+                st.error(f"❌ Failed to send message: {response_message}")
+                st.warning("Please try contacting via email or WhatsApp directly.")
                 
-                if success:
-                    st.success("✅ Message sent successfully! I'll get back to you within 48 hours." \
-                    " Contact via WhatsApp if urgent.")
-                    rain(
-                        emoji="📮",
-                        font_size=54,
-                        falling_speed=5,
-                        animation_length="1",
-                        )
-                else:
-                    st.error(f"❌ Failed to send message: {response_message}")
-                    st.warning("Please try contacting via email or WhatsApp directly.")
-                    
-                    # Fallback: Create mailto link
-                    email_subject = f"Tutoring Inquiry from {name}" + (f" - {subject}" if subject else "")
-                    email_body = f"""
+                # Fallback: Create mailto link
+                email_subject = f"Tutoring Inquiry from {name}" + (f" - {subject}" if subject else "")
+                email_body = f"""
 New tutoring inquiry received:
 
 Name: {name}
@@ -150,90 +213,19 @@ Message:
 
 ---
 Sent via Tutor Portfolio Contact Form
-                    """
-                    
-                    mailto_link = f"mailto:sushantnagi667@gmail.com?subject={email_subject}&body={email_body}"
-                    
-                    st.markdown(f"""
-                    **Alternative Options:**
-                    1. [Click here to open your email client]({mailto_link}) 
-                    2. Or contact via WhatsApp below
-                    """)
-                    
-                    # Display formatted message for manual copying
-                    with st.expander("📋 Copy Message for Manual Send"):
-                        st.code(f"To: sushantnagi667@gmail.com\nSubject: {email_subject}\n\n{email_body}", language="text")
-
-with col2:
-    st.markdown("### 📧 Contact Details")
-    
-    # Email with copy functionality
-    st.markdown("**Email Address:**")
-    email_address = "edu@sushant.cc"
-    
-    col_email, col_copy = st.columns([3, 1])
-    with col_email:
-        st.code(email_address)
-    with col_copy:
-        if st.button("📋", help="Copy email", key="copy_email_btn"):
-            try:
-                pyperclip.copy(email_address)
-                st.toast("✅ Email copied to clipboard!")
-            except:
-                # Fallback: show the email for manual copy
-                st.toast("⚠️ Please copy manually: " + email_address)
-       
-            
-    
-    # WhatsApp Section
-    st.markdown("### 💬 WhatsApp")
-    
-    whatsapp_number = "919599468699"  # Placeholder - you'll replace this
-    whatsapp_message = "Hi, I would like to book a free trial session."
-    whatsapp_url = f"https://wa.me/{whatsapp_number}?text={whatsapp_message}"
-    
-    # WhatsApp contact button
-    st.markdown(f"""
-    <a href="{whatsapp_url}" target="_blank" style="text-decoration: none;">
-        <div style="
-            background-color: #25D366; 
-            color: white; 
-            padding: 10px 20px; 
-            border-radius: 10px; 
-            text-align: center; 
-            margin: 10px 0;
-            display: block;
-        ">
-            💬 Contact on WhatsApp
-        </div>
-    </a>
-    """, unsafe_allow_html=True)
-    
-    # Generate QR Code for WhatsApp
-    st.markdown("**WhatsApp QR Code:**")
-    
-    # Create QR code
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(whatsapp_url)
-    qr.make(fit=True)
-    
-    # Create QR code image
-    qr_img = qr.make_image(fill_color="black", back_color="white")
-    
-    # Convert to bytes for Streamlit
-    buffer = BytesIO()
-    qr_img.save(buffer, "PNG")
-    buffer.seek(0)
-    
-    st.image(buffer, width=200, caption="Scan to chat on WhatsApp")
-    
-    # Contact info box
-    st.info("""
-    📞 **Contact Information**
-    
-    **Email:** edu@sushant.cc  
-    **WhatsApp:** +91 95994 68699  
-    """)
+                """
+                
+                mailto_link = f"mailto:sushantnagi667@gmail.com?subject={email_subject}&body={email_body}"
+                
+                st.markdown(f"""
+                **Alternative Options:**
+                1. [Click here to open your email client]({mailto_link}) 
+                2. Or contact via WhatsApp below
+                """)
+                
+                # Display formatted message for manual copying
+                with st.expander("📋 Copy Message for Manual Send"):
+                    st.code(f"To: sushantnagi667@gmail.com\nSubject: {email_subject}\n\n{email_body}", language="text")
 
 st.markdown("---")
 
