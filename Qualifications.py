@@ -42,6 +42,7 @@ with col3:
     # Education details based on provided information
     st.markdown("""
     **Delhi Technological University**  
+    (formerly Delhi College of Engineering)  
     *Bachelor of Technology in Engineering Physics*  
     📊 CGPA: 7.15
     
@@ -99,6 +100,7 @@ with col3:
     - **SAT/PSAT**
     - **AP Calculus:** AB/BC
     - **AP Chemistry**
+    - **AP Physics**
     - **IGCSE:** Mathematics, Additional Mathematics (Add Maths)
     - **School Mathematics:** Geometry, Algebra I, Algebra II, and Precalculus
     
