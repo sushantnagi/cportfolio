@@ -4,7 +4,7 @@ import os
 
 # Configure page settings
 st.set_page_config(
-    page_title="Tutor Portfolio - Sushant Nagi",
+    page_title="Sushant Nagi - Tutor Portfolio",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -44,7 +44,7 @@ with col3:
     **Delhi Technological University**  
     *Bachelor of Technology in Engineering Physics*  
     📅 Aug 2021 – Aug 2025  
-    📊 CGPA: 6.72
+    📊 CGPA: 7.15
     
     **Hansraj Model School, Punjabi Bagh**  
     *CBSE 12th*  
@@ -95,6 +95,15 @@ with col3:
     st.markdown("## 👨‍🏫 Experience")
     st.markdown("""
     **Tutoring Experience**  
+    Subjects and exams taught:
+    - AMC 8 and AMC 10
+    - AP Calculus AB/BC
+    - AP Chemistry
+    - Additional Mathematics (IGCSE)
+    - Geometry
+    - Algebra I and II
+    - Precalculus
+    
     Taught several students for SAT/Olympiads (Grade 8-12) from:
     - 🇺🇸 USA
     - 🇬🇧 UK  
