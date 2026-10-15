@@ -43,17 +43,14 @@ with col3:
     st.markdown("""
     **Delhi Technological University**  
     *Bachelor of Technology in Engineering Physics*  
-    📅 Aug 2021 – Aug 2025  
     📊 CGPA: 7.15
     
     **Hansraj Model School, Punjabi Bagh**  
     *CBSE 12th*  
-    📅 2021  
     📊 84.6%
     
     **Hansraj Model School, Punjabi Bagh**  
     *CBSE 10th*  
-    📅 2019  
     📊 95.2%
     """)
 
@@ -94,15 +91,15 @@ with col3:
     # Experience Section
     st.markdown("## 👨‍🏫 Experience")
     st.markdown("""
-    **Tutoring Experience**  
-    Subjects and exams taught:
-    - AMC 8 and AMC 10
-    - AP Calculus AB/BC
-    - AP Chemistry
-    - Additional Mathematics (IGCSE)
-    - Geometry
-    - Algebra I and II
-    - Precalculus
+    **4+ years of teaching experience**
+
+    **Subjects and exams taught:**
+
+    - **Mathematics competitions:** AMC 8 and AMC 10
+    - **AP Calculus:** AB and BC
+    - **AP Chemistry**
+    - **IGCSE:** Additional Mathematics
+    - **School Mathematics:** Geometry, Algebra I, Algebra II, and Precalculus
     
     Taught several students for SAT/Olympiads (Grade 8-12) from:
     - 🇺🇸 USA
